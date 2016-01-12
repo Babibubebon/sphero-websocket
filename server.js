@@ -57,23 +57,28 @@ wsServer.on('request', function(request) {
     var connection = request.accept(null, request.origin);
     spheroServer.addClient(request.key, connection);
     console.log((new Date()) + ' Connection from ' + request.remoteAddress + ' accepted');
-    
+
     connection.on('message', function(message) {
         console.log("client: " + request.key);
-        
+
         if (message.type === 'utf8') {
-            var data = JSON.parse(message.utf8Data);
+            try {
+                var data = JSON.parse(message.utf8Data);
+            } catch (e) {
+                console.error("invalid JSON format");
+                return;
+            }
             var command = data.command;
             var client = spheroServer.getClient(request.key);
             var orb = spheroServer.getClientsOrb(request.key);
-            
+
             if (!client || !Array.isArray(data.arguments)) {
                 return;
             }
-            
+
             if (command.substr(0, 1) === "_") {
                 // internal command
-                switch(command) {
+                switch (command) {
                     case "_list":
                         spheroServer.sendList(request.key, data.ID);
                         break;
