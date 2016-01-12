@@ -59,7 +59,7 @@ Spheroのコマンド(API)については、Sphero.js([JavaScript API Doc](http:
 - `successCallback`と`errorCallback`は、それぞれ接続成功、接続失敗時に呼び出される。
 
 #### orb.getList(callback)
-サーバにSpheroが接続されてるSpheroの名前のリストを返す。`callback`の引数にSpheroの名前のArrayが渡される。
+サーバに接続されているSpheroの名前のリストを返す。`callback`の引数にSpheroの名前のArrayが渡される。
 
 #### orb.use(name)
 使うSpheroを設定する。`name`に使いたいSpheroの名前を指定する。
