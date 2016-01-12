@@ -36,7 +36,7 @@ module.exports = {
 ### クライアント
 example: [client/index.html](client/index.html)
 
-以下のような感じで、[Sphero.js](https://github.com/orbotix/spherSpheroo.js)っぽく使える。
+以下のような感じで、[Sphero.js](https://github.com/orbotix/sphero.js)っぽく使える。
 ```html
 <script src="sphero-client.js"></script>
 <script>
@@ -53,3 +53,13 @@ Spheroのコマンド(API)については、Sphero.js([JavaScript API Doc](http:
 以下のコマンドが叩けるようになっている。Data Streaming系のコマンドとか、レスポンスを返すのは未実装。
 - sphero.js/lib/devices/sphero.js
 - sphero.js/lib/devices/custom.js
+
+#### orb.connect(uri, [successCallback], [errorCallback])
+- `uri`は接続先WebSocketサーバのURI
+- `successCallback`と`errorCallback`は、それぞれ接続成功、接続失敗時に呼び出される。
+
+#### orb.getList(callback)
+サーバにSpheroが接続されてるSpheroの名前のリストを返す。`callback`の引数にSpheroの名前のArrayが渡される。
+
+#### orb.use(name)
+使うSpheroを設定する。`name`に使いたいSpheroの名前を指定する。
