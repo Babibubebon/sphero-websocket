@@ -12,7 +12,7 @@
                 var status = document.getElementById("status");
         
                 document.getElementById("connect").addEventListener("click", function() {
-                    orb.connect("ws://" + server.value,function() {
+                    orb.connect("ws://" + server.value, function() {
                         status.textContent = "connected";
                         status.style.backgroundColor = "greenyellow";
                         orb.color("FF00FF");

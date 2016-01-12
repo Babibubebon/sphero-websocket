@@ -59,6 +59,8 @@ wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection from ' + request.remoteAddress + ' accepted');
     
     connection.on('message', function(message) {
+        console.log("client: " + request.key);
+        
         if (message.type === 'utf8') {
             var data = JSON.parse(message.utf8Data);
             var command = data.command;
@@ -68,8 +70,6 @@ wsServer.on('request', function(request) {
             if (!client || !Array.isArray(data.arguments)) {
                 return;
             }
-            
-            console.log(data);
             
             if (command.substr(0, 1) === "_") {
                 // internal command
@@ -83,16 +83,24 @@ wsServer.on('request', function(request) {
                         }
                         break;
                 }
-            } else if (!args.options.test && command in orb) {
+                console.log(command + "(" + data.arguments + ")");
+            } else if (command in orb) {
                 // Sphero's command
-                orb[command].apply(orb, data.arguments);
+                if (!args.options.test) {
+                    orb[command].apply(orb, data.arguments);
+                }
+                console.log(client.linkedOrb.name + "." + command + "(" + data.arguments.join(",") + ")");
+            } else {
+                // invalid command
+                console.error("invalid command: " + command);
             }
-            
-            console.log("client: " + request.key);
-            console.log("\t" + client.linkedOrb.name + "." + command + "(" + data.arguments.join(",") + ")");
         }
     });
     connection.on('close', function(reasonCode, description) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
+});
+
+process.on('uncaughtException', function(err) {
+    console.error(err);
 });
