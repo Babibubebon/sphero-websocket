@@ -4,15 +4,15 @@
  */
 "use strict";
 
-var WebSocketServer = require('websocket').server;
-var http = require('http');
-var sphero = require('sphero');
-var spheroServer = require('./lib/spheroserver');
-var argv = require('argv');
-var config = require('./config');
+var WebSocketServer = require("websocket").server;
+var http = require("http");
+var sphero = require("sphero");
+var spheroServer = require("./lib/spheroserver");
+var argv = require("argv");
+var config = require("./config");
 
 var opts = [
-    {name: 'test', type: "boolean"}
+    {name: "test", type: "boolean"}
 ];
 var args = argv.option(opts).run();
 
@@ -26,10 +26,10 @@ config.sphero.forEach(function(elm) {
 
 var httpServer = http.createServer(function(request, response) {
     response.writeHead(200);
-    response.write('This is Sphero WebScoket Server.');
+    response.write("This is Sphero WebScoket Server.");
     response.end();
 }).listen(config.wsPort, function() {
-    console.log((new Date()) + ' Server is listening on port ' + config.wsPort);
+    console.log((new Date()) + " Server is listening on port " + config.wsPort);
 });
 
 var wsServer = new WebSocketServer({
@@ -47,21 +47,21 @@ function originIsAllowed(origin) {
     return false;
 }
 
-wsServer.on('request', function(request) {
+wsServer.on("request", function(request) {
     if (!originIsAllowed(request.origin)) {
         request.reject();
-        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+        console.log((new Date()) + " Connection from origin " + request.origin + " rejected.");
         return;
     }
 
     var connection = request.accept(null, request.origin);
     spheroServer.addClient(request.key, connection);
-    console.log((new Date()) + ' Connection from ' + request.remoteAddress + ' accepted');
+    console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
-    connection.on('message', function(message) {
+    connection.on("message", function(message) {
         console.log("client: " + request.key);
 
-        if (message.type === 'utf8') {
+        if (message.type === "utf8") {
             try {
                 var data = JSON.parse(message.utf8Data);
             } catch (e) {
@@ -90,7 +90,7 @@ wsServer.on('request', function(request) {
                 }
                 console.log(command + "(" + data.arguments + ")");
             } else if (command in orb) {
-                // Sphero's command
+                // Sphero"s command
                 if (!args.options.test) {
                     orb[command].apply(orb, data.arguments);
                 }
@@ -101,11 +101,11 @@ wsServer.on('request', function(request) {
             }
         }
     });
-    connection.on('close', function(reasonCode, description) {
-        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+    connection.on("close", function(reasonCode, description) {
+        console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
     });
 });
 
-process.on('uncaughtException', function(err) {
+process.on("uncaughtException", function(err) {
     console.error(err);
 });
