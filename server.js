@@ -24,7 +24,7 @@ module.exports = function(config, isTestMode) {
 
     var httpServer = http.createServer(function(request, response) {
         response.writeHead(200);
-        response.write("This is Sphero WebScoket Server.");
+        response.write("This is Sphero WebSocket Server.");
         response.end();
     }).listen(config.wsPort, function() {
         console.log((new Date()) + " Server is listening on port " + config.wsPort);
