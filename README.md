@@ -1,13 +1,15 @@
 # sphero-websocket
 
-
 ## 使い方
 ### サーバ
-ライブラリをインストール。
 
-    $ npm install
+```
+$ npm install --save sphero-websocket
+```
 
-設定ファイル`config.js`を適宜書き換える。
+カレントディレクトリに、設定ファイル`sphero-ws-config.js`を作成する。
+例:
+
 ```javascript
 module.exports = {
     wsPort: 8080,
@@ -29,14 +31,43 @@ module.exports = {
 
 サーバーを起動する。
 
-    $ node server.js
+#### グローバルインストールした場合:
+
+`sphero-ws-config.js`があるディレクトリにて実行。
+```
+$ sphero-websocket
+```
+
+### そうでないとき
+
+`sphero-ws-config.js`があるディレクトリにて実行。
+```
+$ "./node-modules/.bin/sphero-websocket"
+```
+
+package.jsonのscriptsを次のようにすると、いい感じになる。
+
+```js
+"scripts": {
+  "server": "sphero-websocket"
+}
+```
+
+次のようにできるようになる。
+
+```
+$ npm run server
+```
 
 `--test`オプションを付けると、実際にデバイスには接続せずログ出力のみとなる。
 
 ### クライアント
-example: [client/index.html](client/index.html)
-
-以下のような感じで、[Sphero.js](https://github.com/orbotix/sphero.js)っぽく使える。
+example: [client/index.html](client/index.html)  
+上の手順でサーバーを起動しているときは、  
+http://localhost:8080/example/ でも確認できる。  
+（ポート番号は sphero-ws-config.js で変更している場合は、それにする）  
+  
+以下のような感じで、[Sphero.js](https://github.com/orbotix/sphero.js)っぽく使える。  
 ```html
 <script src="sphero-client.js"></script>
 <script>
@@ -48,9 +79,9 @@ orb.connect("ws://127.0.0.1:8080", function() {
 </script>
 ```
 
-Spheroのコマンド(API)については、Sphero.js([JavaScript API Doc](http://sdk.sphero.com/community-apis/javascript-sdk/))を参照。
-
-以下のコマンドが叩けるようになっている。Data Streaming系のコマンドとか、レスポンスを返すのは未実装。
+Spheroのコマンド(API)については、Sphero.js([JavaScript API Doc](http://sdk.sphero.com/community-apis/javascript-sdk/))を参照。  
+  
+以下のコマンドが叩けるようになっている。Data Streaming系のコマンドとか、レスポンスを返すのは未実装。  
 - sphero.js/lib/devices/sphero.js
 - sphero.js/lib/devices/custom.js
 
