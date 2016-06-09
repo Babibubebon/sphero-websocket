@@ -9,6 +9,7 @@ module.exports = function(config, isTestMode) {
     var http = require("http");
     var sphero = require("sphero");
     var spheroServer = require("./lib/spheroserver");
+    var fs = require("fs");
 
     if (isTestMode) {
       console.log("running test-mode");
@@ -23,9 +24,28 @@ module.exports = function(config, isTestMode) {
 
 
     var httpServer = http.createServer(function(request, response) {
-        response.writeHead(200);
-        response.write("This is Sphero WebSocket Server.");
-        response.end();
+        var clientDir = "/client/";
+        if (request.url.substring(0, clientDir.length) === clientDir) {
+            var url = request.url.substring(clientDir.length);
+            url = url === "" ? "index.html" : url;
+            // 拡張可能。拡張子からMIMEタイプをとる。
+            var contentTypes = {
+                "html": "text/html",
+                "js": "text/javascript"
+            };
+            response.writeHead(200, { "Content-Type": contentTypes[url.split(".").reverse()[0]]});
+            fs.readFile(__dirname + clientDir + url, "utf-8", function(err, data) {
+                if (err) {
+                    throw err;
+                }
+                response.write(data);
+                response.end();
+            });
+        } else {
+            response.writeHead(200);
+            response.write("This is Sphero WebSocket Server.");
+            response.end();
+        }
     }).listen(config.wsPort, function() {
         console.log((new Date()) + " Server is listening on port " + config.wsPort);
     });
