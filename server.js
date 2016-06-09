@@ -4,21 +4,19 @@
  */
 "use strict";
 
-module.exports = function(config) {
+module.exports = function(config, isTestMode) {
     var WebSocketServer = require("websocket").server;
     var http = require("http");
     var sphero = require("sphero");
     var spheroServer = require("./lib/spheroserver");
-    var argv = require("argv");
 
-    var opts = [
-        {name: "test", type: "boolean"}
-    ];
-    var args = argv.option(opts).run();
+    if (isTestMode) {
+      console.log("running test-mode");
+    }
 
     config.sphero.forEach(function(elm) {
         var orb = sphero(elm.port);
-        if (!args.options.test)
+        if (!isTestMode)
             orb.connect();
         spheroServer.addOrb(orb, elm.name);
     });
@@ -91,7 +89,7 @@ module.exports = function(config) {
                     console.log(command + "(" + data.arguments + ")");
                 } else if (command in orb) {
                     // Sphero"s command
-                    if (!args.options.test) {
+                    if (!isTestMode) {
                         orb[command].apply(orb, data.arguments);
                     }
                     console.log(client.linkedOrb.name + "." + command + "(" + data.arguments.join(",") + ")");

@@ -1,6 +1,6 @@
 {
   "name": "sphero-websocket",
-  "version": "0.0.6",
+  "version": "0.1.1",
   "bin": "bin/sphero-websocket.js",
   "description": "websocket server and client for Sphero",
   "main": "index.js",
