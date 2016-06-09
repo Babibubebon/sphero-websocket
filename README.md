@@ -2,14 +2,14 @@
 
 ## 使い方
 ### サーバ
-
+#### モジュールをインストール
 ```
 $ npm install --save sphero-websocket
 ```
 
-カレントディレクトリに、設定ファイル`sphero-ws-config.js`を作成する。
+#### 設定ファイルを作成
+カレントディレクトリに、設定ファイル`sphero-ws-config.js`を作成する。  
 例:
-
 ```javascript
 module.exports = {
     wsPort: 8080,
@@ -29,16 +29,7 @@ module.exports = {
   - **name** 識別名(省略可)
   - **port** 接続ポート
 
-サーバーを起動する。
-
-#### グローバルインストールした場合:
-
-`sphero-ws-config.js`があるディレクトリにて実行。
-```
-$ sphero-websocket
-```
-
-### そうでないとき
+#### サーバーを起動する
 
 `sphero-ws-config.js`があるディレクトリにて実行。
 ```
@@ -49,7 +40,8 @@ package.jsonのscriptsを次のようにすると、いい感じになる。
 
 ```js
 "scripts": {
-  "server": "sphero-websocket"
+  "server": "sphero-websocket",
+  "server-test": "sphero-websocket --test"
 }
 ```
 
@@ -57,27 +49,36 @@ package.jsonのscriptsを次のようにすると、いい感じになる。
 
 ```
 $ npm run server
+
+もしくは、--test オプションをつけて実行
+$ npm run server-test
 ```
 
 `--test`オプションを付けると、実際にデバイスには接続せずログ出力のみとなる。
 
 ### クライアント
-example: [client/index.html](client/index.html)  
-上の手順でサーバーを起動しているときは、  
-http://localhost:8080/example/ でも確認できる。  
-（ポート番号は sphero-ws-config.js で変更している場合は、それにする）  
-  
-以下のような感じで、[Sphero.js](https://github.com/orbotix/sphero.js)っぽく使える。  
+ここから先、ポート番号は、`8080`を使っていることとする。  
+sphero-ws-config.js でポート番号を変更することができる。
+
+#### example
+[http://localhost:8080/client/](http://localhost:8080/client/)
+
+#### （Client側ライブラリ）sphero-client.js
+読み込みは、次のようにしてできる。
 ```html
-<script src="sphero-client.js"></script>
-<script>
+<script src="http://localhost:8080/client/sphero-client.js"></script>
+```
+
+以下のような感じで、[Sphero.js](https://github.com/orbotix/sphero.js)っぽく使える。
+```js
 var orb = new sphero();
 orb.connect("ws://127.0.0.1:8080", function() {
     orb.color("FF00FF");
     orb.roll(100, 0);
 });
-</script>
 ```
+
+#### API
 
 Spheroのコマンド(API)については、Sphero.js([JavaScript API Doc](http://sdk.sphero.com/community-apis/javascript-sdk/))を参照。  
   
@@ -85,12 +86,12 @@ Spheroのコマンド(API)については、Sphero.js([JavaScript API Doc](http:
 - sphero.js/lib/devices/sphero.js
 - sphero.js/lib/devices/custom.js
 
-#### orb.connect(uri, [successCallback], [errorCallback])
+##### orb.connect(uri, [successCallback], [errorCallback])
 - `uri`は接続先WebSocketサーバのURI
 - `successCallback`と`errorCallback`は、それぞれ接続成功、接続失敗時に呼び出される。
 
-#### orb.getList(callback)
+##### orb.getList(callback)
 サーバに接続されているSpheroの名前のリストを返す。`callback`の引数にSpheroの名前のArrayが渡される。
 
-#### orb.use(name)
+##### orb.use(name)
 使うSpheroを設定する。`name`に使いたいSpheroの名前を指定する。
