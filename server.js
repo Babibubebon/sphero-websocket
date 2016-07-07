@@ -67,7 +67,6 @@ module.exports = function(config, isTestMode) {
         return false;
     }
 
-    var clientCount = 0;
     wsServer.on("request", function(request) {
         if (!originIsAllowed(request.origin)) {
             request.reject();
@@ -76,9 +75,7 @@ module.exports = function(config, isTestMode) {
         }
 
         var connection = request.accept(null, request.origin);
-        spheroServer.addClient(request.key, connection,
-            config.isMultipleMode && clientCount < spheroServer.getOrbCount() ?
-            clientCount++ : 0);
+        spheroServer.addClient(request.key, connection);
         externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
         console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
@@ -94,7 +91,7 @@ module.exports = function(config, isTestMode) {
                 }
                 var command = data.command;
                 var client = spheroServer.getClient(request.key);
-                var orb = spheroServer.getClientsOrb(request.key);
+                var orb = client.linkedOrb;
 
                 if (!client || !Array.isArray(data.arguments)) {
                     return;
@@ -104,11 +101,11 @@ module.exports = function(config, isTestMode) {
                     // internal command
                     switch (command) {
                         case "_list":
-                            spheroServer.sendList(request.key, data.ID);
+                            client.sendMessage(spheroServer.getList(), data.ID);
                             break;
                         case "_use":
                             if (data.arguments.length === 1) {
-                                spheroServer.setClientsOrb(request.key, data.arguments[0]);
+                                client.setClientsOrb(spheroServer.getOrb(data.arguments[0]));
                             }
                             break;
                         case "_custom":
@@ -116,12 +113,12 @@ module.exports = function(config, isTestMode) {
                             break;
                     }
                     console.log(command + "(" + data.arguments + ")");
-                } else if (command in orb) {
+                } else if (orb.hasCommand(command)) {
                     // Sphero"s command
                     if (!isTestMode) {
-                        orb[command].apply(orb, data.arguments);
+                        orb.command(command, data.arguments);
                     }
-                    console.log(client.linkedOrb.name + "." + command + "(" + data.arguments.join(",") + ")");
+                    console.log(orb.name + "." + command + "(" + data.arguments.join(",") + ")");
                     externalEvent.emit("command", request.key, command, data.arguments);
                 } else {
                     // invalid command
