@@ -67,6 +67,7 @@ module.exports = function(config, isTestMode) {
         return false;
     }
 
+    var clientCount = 0;
     wsServer.on("request", function(request) {
         if (!originIsAllowed(request.origin)) {
             request.reject();
@@ -75,7 +76,9 @@ module.exports = function(config, isTestMode) {
         }
 
         var connection = request.accept(null, request.origin);
-        spheroServer.addClient(request.key, connection);
+        spheroServer.addClient(request.key, connection,
+            config.isMultipleMode && clientCount < spheroServer.getOrbCount() ?
+            clientCount++ : 0);
         externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
         console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
