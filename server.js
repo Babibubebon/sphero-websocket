@@ -3,13 +3,15 @@
  * https://github.com/Babibubebon
  */
 "use strict";
+var WebSocketServer = require("websocket").server;
+var http = require("http");
+var sphero = require("sphero");
+var spheroServer = require("./lib/spheroserver");
+var fs = require("fs");
+var EventEmitter = require("events").EventEmitter;
 
 module.exports = function(config, isTestMode) {
-    var WebSocketServer = require("websocket").server;
-    var http = require("http");
-    var sphero = require("sphero");
-    var spheroServer = require("./lib/spheroserver");
-    var fs = require("fs");
+    var externalEvent = new EventEmitter();
 
     if (isTestMode) {
       console.log("running test-mode");
@@ -74,6 +76,7 @@ module.exports = function(config, isTestMode) {
 
         var connection = request.accept(null, request.origin);
         spheroServer.addClient(request.key, connection);
+        externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
         console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
         connection.on("message", function(message) {
@@ -105,6 +108,9 @@ module.exports = function(config, isTestMode) {
                                 spheroServer.setClientsOrb(request.key, data.arguments[0]);
                             }
                             break;
+                        case "_custom":
+                            externalEvent.emit("customMes", request.key, data.arguments[0], data.arguments[1], data.ID);
+                            break;
                     }
                     console.log(command + "(" + data.arguments + ")");
                 } else if (command in orb) {
@@ -113,6 +119,7 @@ module.exports = function(config, isTestMode) {
                         orb[command].apply(orb, data.arguments);
                     }
                     console.log(client.linkedOrb.name + "." + command + "(" + data.arguments.join(",") + ")");
+                    externalEvent.emit("command", request.key, command, data.arguments);
                 } else {
                     // invalid command
                     console.error("invalid command: " + command);
@@ -128,5 +135,10 @@ module.exports = function(config, isTestMode) {
         console.error(err);
     });
 
+    return {
+        events: externalEvent,
+        // ↓セキュリティ的にOKなのか
+        spheroServer: spheroServer
+    };
 };
 
