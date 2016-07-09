@@ -73,6 +73,10 @@ module.exports = function(config, isTestMode) {
             console.log((new Date()) + " Connection from origin " + request.origin + " rejected.");
             return;
         }
+        if (config.isMultipleMode && Object.keys(spheroServer.getUnlinkedOrbs()).length === 0) {
+            request.reject();
+            console.log("orbの数がcontrollerに対して足りませんのでreject!");
+        }
 
         var connection = request.accept(null, request.origin);
         var client = spheroServer.addClient(request.key, connection);
