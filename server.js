@@ -75,7 +75,13 @@ module.exports = function(config, isTestMode) {
         }
 
         var connection = request.accept(null, request.origin);
-        spheroServer.addClient(request.key, connection);
+        var client = spheroServer.addClient(request.key, connection);
+        if (config.isMultipleMode) {
+            var unlinkedOrbs = spheroServer.getUnlinkedOrbs();
+            client.setLinkedOrb(unlinkedOrbs[Object.keys(unlinkedOrbs)[0]]);
+        } else {
+            client.setLinkedOrb(spheroServer.getOrb(0));
+        }
         externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
         console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
@@ -90,7 +96,6 @@ module.exports = function(config, isTestMode) {
                     return;
                 }
                 var command = data.command;
-                var client = spheroServer.getClient(request.key);
                 var orb = client.linkedOrb;
 
                 if (!client || !Array.isArray(data.arguments)) {
@@ -127,6 +132,7 @@ module.exports = function(config, isTestMode) {
             }
         });
         connection.on("close", function(reasonCode, description) {
+            client.unlink();
             console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
         });
     });
