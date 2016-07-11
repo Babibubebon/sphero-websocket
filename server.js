@@ -73,17 +73,17 @@ module.exports = function(config, isTestMode) {
             console.log((new Date()) + " Connection from origin " + request.origin + " rejected.");
             return;
         }
-        if (config.isMultipleMode && Object.keys(spheroServer.getUnlinkedOrbs()).length === 0) {
+        if (config.linkMode === "multiple" && Object.keys(spheroServer.getUnlinkedOrbs()).length === 0) {
             request.reject();
             console.log("orbの数がcontrollerに対して足りませんのでreject!");
         }
 
         var connection = request.accept(null, request.origin);
         var client = spheroServer.addClient(request.key, connection);
-        if (config.isMultipleMode) {
+        if (config.linkMode === "multiple") {
             var unlinkedOrbs = spheroServer.getUnlinkedOrbs();
             client.setLinkedOrb(unlinkedOrbs[Object.keys(unlinkedOrbs)[0]]);
-        } else {
+        } else if (config.linkMode === "single") {
             client.setLinkedOrb(spheroServer.getOrb(0));
         }
         externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
@@ -121,6 +121,7 @@ module.exports = function(config, isTestMode) {
             }
         });
         connection.on("close", function(reasonCode, description) {
+            // unlinkは、どのlinkModeでも自動的に行われる。
             client.unlink();
             externalEvent.emit("removeClient", request.key);
             console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
