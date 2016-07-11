@@ -1,14 +1,15 @@
 {
   "name": "sphero-websocket",
-  "version": "0.0.0",
+  "version": "0.5.3",
+  "bin": "bin/sphero-websocket.js",
   "description": "websocket server and client for Sphero",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Babibubebon/sphero-websocket.git"
+    "url": "git://github.com/comozilla/sphero-websocket.git"
   },
   "keywords": [
     "Sphero"
@@ -16,13 +17,13 @@
   "author": "Babibubebon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Babibubebon/sphero-websocket/issues"
+    "url": "https://github.com/comozilla/sphero-websocket/issues"
   },
   "dependencies": {
     "sphero": "~0.5.0",
     "websocket": "~1.0.22",
     "noble": "~1.2.1",
-    "serialport": "~2.0.6",
+    "serialport": "^2.0.6",
     "argv": "0.0.2"
   }
 }

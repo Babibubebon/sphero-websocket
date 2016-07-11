@@ -39,10 +39,20 @@ sphero.prototype.connect = function(uri, successCallback, errorCallback) {
             console.log(e);
             return;
         }
-        if (data.ID && data.ID in this._resQueue) {
-            this._resQueue[data.ID](data.content);
+        if (typeof data.ID !== "undefined") {
+            if (data.ID in this._resQueue) {
+                this._resQueue[data.ID](data.content);
+            } else if (data.content.type && data.content.type === "custom") {
+                if (data.content.name && typeof this.customMessageListeners[data.content.name] !== "undefined") {
+                    this.customMessageListeners[data.content.name].forEach(listener => {
+                        listener(data.content.data);
+                    });
+                }
+            }
         }
     }.bind(this);
+
+    this.customMessageListeners = {};
 };
 
 sphero.prototype.disconnect = function() {
@@ -73,6 +83,20 @@ sphero.prototype.getList = function(callback) {
 
 sphero.prototype.use = function(name, callback) {
     this.send("_use", [name], callback);
+};
+
+// sphero-websocket server側の外側とのメッセージ交換用
+sphero.prototype.listenCustomMessage = function(name, callback) {
+    if (typeof this.customMessageListeners[name] === "undefined") {
+        this.customMessageListeners[name] = [];
+    }
+    this.customMessageListeners[name].push(function(data) {
+        callback(data);
+    });
+};
+
+sphero.prototype.sendCustomMessage = function(name, data, callback) {
+    this.send("_custom", [name, data], callback);
 };
 
 sphero.commands = [
