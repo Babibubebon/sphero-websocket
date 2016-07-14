@@ -86,7 +86,6 @@ module.exports = function(config, isTestMode) {
         } else if (config.linkMode === "single") {
             client.setLinkedOrb(spheroServer.getOrb(0));
         }
-        externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
         console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
         client.on("message", function() {
@@ -108,22 +107,22 @@ module.exports = function(config, isTestMode) {
         });
         client.on("arriveNormalCommand", function(command, args) {
             var orb = client.linkedOrb;
-            if (orb.hasCommand(command)) {
-                // Sphero"s command
-                if (!isTestMode) {
-                    orb.command(command, args);
+            if (orb !== null) {
+                if (orb.hasCommand(command)) {
+                    // Sphero"s command
+                    if (!isTestMode) {
+                        orb.command(command, args);
+                    }
+                    console.log(orb.name + "." + command + "(" + args.join(",") + ")");
+                    externalEvent.emit("command", request.key, command, args);
+                } else {
+                    // invalid command
+                    console.error("invalid command: " + command);
                 }
-                console.log(orb.name + "." + command + "(" + args.join(",") + ")");
-                externalEvent.emit("command", request.key, command, args);
-            } else {
-                // invalid command
-                console.error("invalid command: " + command);
             }
         });
         connection.on("close", function(reasonCode, description) {
-            // unlinkは、どのlinkModeでも自動的に行われる。
-            client.unlink();
-            externalEvent.emit("removeClient", request.key);
+            spheroServer.removeClient(request.key);
             console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
         });
     });
