@@ -5,7 +5,6 @@
 "use strict";
 var WebSocketServer = require("websocket").server;
 var http = require("http");
-var sphero = require("sphero");
 var spheroServer = require("./lib/spheroserver");
 var fs = require("fs");
 var EventEmitter = require("events").EventEmitter;
@@ -18,9 +17,9 @@ module.exports = function(config, isTestMode) {
     }
 
     config.sphero.forEach(function(elm) {
-        var orb = sphero(elm.port);
+        var orb = spheroServer.makeRawOrb(elm.name, elm.port);
         if (!isTestMode)
-            orb.connect();
+            orb.instance.connect();
         spheroServer.addOrb(orb, elm.name);
     });
 
@@ -73,62 +72,48 @@ module.exports = function(config, isTestMode) {
             console.log((new Date()) + " Connection from origin " + request.origin + " rejected.");
             return;
         }
-        if (config.isMultipleMode && Object.keys(spheroServer.getUnlinkedOrbs()).length === 0) {
+        if (config.linkMode === "multiple" && Object.keys(spheroServer.getUnlinkedOrbs()).length === 0) {
             request.reject();
             console.log("orbの数がcontrollerに対して足りませんのでreject!");
         }
 
         var connection = request.accept(null, request.origin);
         var client = spheroServer.addClient(request.key, connection);
-        if (config.isMultipleMode) {
+        if (config.linkMode === "multiple") {
             var unlinkedOrbs = spheroServer.getUnlinkedOrbs();
             client.setLinkedOrb(unlinkedOrbs[Object.keys(unlinkedOrbs)[0]]);
-        } else {
+        } else if (config.linkMode === "single") {
             client.setLinkedOrb(spheroServer.getOrb(0));
         }
-        externalEvent.emit("addClient", request.key, spheroServer.getClient(request.key));
         console.log((new Date()) + " Connection from " + request.remoteAddress + " accepted");
 
-        connection.on("message", function(message) {
+        client.on("message", function() {
             console.log("client: " + request.key);
-
-            if (message.type === "utf8") {
-                try {
-                    var data = JSON.parse(message.utf8Data);
-                } catch (e) {
-                    console.error("invalid JSON format");
-                    return;
-                }
-                var command = data.command;
-                var orb = client.linkedOrb;
-
-                if (!client || !Array.isArray(data.arguments)) {
-                    return;
-                }
-
-                if (command.substr(0, 1) === "_") {
-                    // internal command
-                    switch (command) {
-                        case "_list":
-                            client.sendMessage(spheroServer.getList(), data.ID);
-                            break;
-                        case "_use":
-                            if (data.arguments.length === 1) {
-                                client.setClientsOrb(spheroServer.getOrb(data.arguments[0]));
-                            }
-                            break;
-                        case "_custom":
-                            externalEvent.emit("customMes", request.key, data.arguments[0], data.arguments[1], data.ID);
-                            break;
+        });
+        client.on("arriveInternalCommand", function(command, args) {
+            // internal command
+            switch (command) {
+                case "_list":
+                    client.sendMessage(spheroServer.getList(), data.ID);
+                    break;
+                case "_use":
+                    if (args.length === 1) {
+                        client.setClientsOrb(spheroServer.getOrb(args[0]));
                     }
-                    console.log(command + "(" + data.arguments + ")");
-                } else if (orb.hasCommand(command)) {
+                    break;
+            }
+            console.log(command + "(" + data.arguments + ")");
+        });
+        client.on("arriveNormalCommand", function(command, args) {
+            var orb = client.linkedOrb;
+            if (orb !== null) {
+                if (orb.hasCommand(command)) {
                     // Sphero"s command
                     if (!isTestMode) {
-                        orb.command(command, data.arguments);
+                        orb.command(command, args);
                     }
-                    console.log(orb.name + "." + command + "(" + data.arguments.join(",") + ")");
-                    externalEvent.emit("command", request.key, command, data.arguments);
+                    console.log(orb.name + "." + command + "(" + args.join(",") + ")");
+                    externalEvent.emit("command", request.key, command, args);
                 } else {
                     // invalid command
                     console.error("invalid command: " + command);
@@ -136,7 +121,7 @@ module.exports = function(config, isTestMode) {
             }
         });
         connection.on("close", function(reasonCode, description) {
-            client.unlink();
+            spheroServer.removeClient(request.key);
             console.log((new Date()) + " Peer " + connection.remoteAddress + " disconnected.");
         });
     });
