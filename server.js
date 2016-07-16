@@ -5,7 +5,6 @@
 "use strict";
 var WebSocketServer = require("websocket").server;
 var http = require("http");
-var sphero = require("sphero");
 var spheroServer = require("./lib/spheroserver");
 var fs = require("fs");
 var EventEmitter = require("events").EventEmitter;
@@ -18,9 +17,9 @@ module.exports = function(config, isTestMode) {
     }
 
     config.sphero.forEach(function(elm) {
-        var orb = sphero(elm.port);
+        var orb = spheroServer.makeRawOrb(elm.name, elm.port);
         if (!isTestMode)
-            orb.connect();
+            orb.instance.connect();
         spheroServer.addOrb(orb, elm.name);
     });
 
