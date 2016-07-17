@@ -1,9 +1,9 @@
 {
   "name": "sphero-websocket",
-  "version": "0.2.0",
+  "version": "0.5.11",
   "bin": "bin/sphero-websocket.js",
   "description": "websocket server and client for Sphero",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

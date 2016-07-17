@@ -1,91 +1,87 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Sphero Client</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="sphero-client.js"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var orb = new sphero();
-                var server = document.getElementById("server");
-                var status = document.getElementById("status");
-        
-                document.getElementById("connect").addEventListener("click", function() {
-                    orb.connect("ws://" + server.value, function() {
-                        status.textContent = "connected";
-                        status.style.backgroundColor = "greenyellow";
-                        orb.color("FF00FF");
-                    }, function() {
-                        status.textContent = "error";
-                        status.style.backgroundColor = "yellow";
-                    });
-                });
-                document.getElementById("disconnect").addEventListener("click", function() {
-                   orb.disconnect();
-                   status.textContent = "disconnected";
-                   status.style.backgroundColor = "red";
-                });
+  <head>
+    <title>Sphero Client</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="sphero-client.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var orb = new sphero();
+        var server = document.getElementById("server");
+        var status = document.getElementById("status");
 
-                var select = document.getElementById("list");
-                document.getElementById("getList").addEventListener("click", function() {
-                    orb.getList(function(list) {
-                        select.innerHTML = "";
-                        list.forEach(function(name) {
-                            var elm = document.createElement("option"); 
-                            elm.textContent = name;
-                            elm.value = name;
-                            select.appendChild(elm);
-                        });
-                    }); 
-                });
-                select.addEventListener("change", function(e) {
-                    var name = select.options[select.selectedIndex].value;
-                    orb.use(name);
-                });
-                
-                document.getElementById("forward").addEventListener("click", function() {
-                    orb.roll(100, 0);
-                });
-                document.getElementById("back").addEventListener("click", function() {
-                    orb.roll(100, 180);
-                });
-                document.getElementById("right").addEventListener("click", function() {
-                    orb.roll(100, 90);
-                });
-                document.getElementById("left").addEventListener("click", function() {
-                    orb.roll(100, 270);
-                });
+        document.getElementById("connect").addEventListener("click", function() {
+          orb.connect("ws://" + server.value, function() {
+            status.textContent = "connected";
+            status.style.backgroundColor = "greenyellow";
+            orb.color("FF00FF");
+          }, function() {
+            status.textContent = "error";
+            status.style.backgroundColor = "yellow";
+          });
+        });
+        document.getElementById("disconnect").addEventListener("click", function() {
+          orb.disconnect();
+          status.textContent = "disconnected";
+          status.style.backgroundColor = "red";
+        });
+
+        var select = document.getElementById("list");
+        document.getElementById("getList").addEventListener("click", function() {
+          orb.getList(function(list) {
+            select.innerHTML = "";
+            list.forEach(function(name) {
+              var elm = document.createElement("option"); 
+              elm.textContent = name;
+              elm.value = name;
+              select.appendChild(elm);
             });
-        </script>
-    </head>
-    <body>
-        <h1>Sphero Client</h1>
-        
-        <div>
-            <label>Server: </label><input type="text" id="server" value="127.0.0.1:8080">
-            <div>
-                <button id="connect">Connect</button>
-                <button id="disconnect">Disconnect</button>
-            </div>
-        </div>
-        
-        <p>
-            status: <span id="status"></span>
-        </p>
-        
-        <h2>Sphero List</h2>
-        <div>
-            <button id="getList">get list</button><br>
-            Use: <select id="list"></select>
-        </div>
-        
-        <h2>Controller</h2>
-        <div>
-            <button id="left">←</button>
-            <button id="forward">↑</button>
-            <button id="back">↓</button>
-            <button id="right">→</button>
-        </div>
-    </body>
+          });
+        });
+        select.addEventListener("change", function(e) {
+          var name = select.options[select.selectedIndex].value;
+          orb.use(name);
+        });
+
+        document.getElementById("forward").addEventListener("click", function() {
+          orb.roll(100, 0);
+        });
+        document.getElementById("back").addEventListener("click", function() {
+          orb.roll(100, 180);
+        });
+        document.getElementById("right").addEventListener("click", function() {
+          orb.roll(100, 90);
+        });
+        document.getElementById("left").addEventListener("click", function() {
+          orb.roll(100, 270);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Sphero Client</h1>
+    <div>
+      <label>Server: </label><input type="text" id="server" value="127.0.0.1:8080">
+      <div>
+        <button id="connect">Connect</button>
+        <button id="disconnect">Disconnect</button>
+      </div>
+    </div>
+    <p>
+      status: <span id="status"></span>
+    </p>
+    <h2>Sphero List</h2>
+    <div>
+      <button id="getList">get list</button><br>
+      Use: <select id="list"></select>
+    </div>
+    <h2>Controller</h2>
+    <div>
+      <button id="left">←</button>
+      <button id="forward">↑</button>
+      <button id="back">↓</button>
+      <button id="right">→</button>
+    </div>
+  </body>
 </html>
