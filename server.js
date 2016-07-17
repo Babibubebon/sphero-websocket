@@ -90,19 +90,20 @@ module.exports = function(config, isTestMode) {
     client.on("message", function() {
       console.log("client: " + request.key);
     });
-    client.on("arriveInternalCommand", function(command, args) {
+    client.on("arriveInternalCommand", function(command, args, mesID) {
+      console.log(command);
       // internal command
       switch (command) {
         case "_list":
-          client.sendMessage(spheroServer.getList(), data.ID);
+          client.sendMessage(spheroServer.getList(), mesID);
           break;
         case "_use":
           if (args.length === 1) {
-            client.setClientsOrb(spheroServer.getOrb(args[0]));
+            client.setLinkedOrb(spheroServer.getOrb(args[0]));
           }
           break;
       }
-      console.log(command + "(" + data.arguments + ")");
+      console.log(command + "(" + args + ")");
     });
     client.on("arriveNormalCommand", function(command, args) {
       var orb = client.linkedOrb;
