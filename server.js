@@ -91,7 +91,6 @@ module.exports = function(config, isTestMode) {
       console.log("client: " + request.key);
     });
     client.on("arriveInternalCommand", function(command, args, mesID) {
-      console.log(command);
       // internal command
       switch (command) {
         case "_list":
