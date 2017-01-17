@@ -186,3 +186,7 @@ sphero.commands.forEach(function(command) {
     this.send(command, argsArray);
   };
 });
+
+if (typeof module !== "undefined") {
+  module.exports = sphero;
+}
