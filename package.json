@@ -1,6 +1,6 @@
 {
   "name": "sphero-websocket",
-  "version": "0.5.11",
+  "version": "0.5.13",
   "bin": "bin/sphero-websocket.js",
   "description": "websocket server and client for Sphero",
   "main": "server.js",
@@ -20,9 +20,9 @@
     "url": "https://github.com/comozilla/sphero-websocket/issues"
   },
   "dependencies": {
-    "sphero": "~0.5.0",
+    "sphero": "comozilla/sphero.js#develop",
     "websocket": "~1.0.22",
-    "noble": "~1.2.1",
+    "noble": "~1.8.0",
     "serialport": "^2.0.6",
     "argv": "0.0.2"
   }
