@@ -22,7 +22,7 @@
   "dependencies": {
     "sphero": "comozilla/sphero.js#develop",
     "websocket": "~1.0.22",
-    "noble": "~1.8.0",
+    "noble": "comozilla/noble#develop",
     "serialport": "^2.0.6",
     "argv": "0.0.2"
   }
